@@ -17,16 +17,17 @@ module.exports = function () {
       },
       function (usernameOrEmail, password, done) {
         User.findOne(
-          {
-            $or: [
-              {
-                username: usernameOrEmail.toLowerCase(),
-              },
-              {
-                email: usernameOrEmail.toLowerCase(),
-              },
-            ],
-          },
+          { email: usernameOrEmail.toLowerCase() },
+          // {
+          //   $or: [
+          //     {
+          //       username: usernameOrEmail.toLowerCase(),
+          //     },
+          //     {
+          //       email: usernameOrEmail.toLowerCase(),
+          //     },
+          //   ],
+          // },
           function (err, user) {
             if (err) {
               return done(err);

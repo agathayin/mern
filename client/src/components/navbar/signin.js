@@ -7,14 +7,20 @@ import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
 import axios from "axios";
+import _ from "lodash";
+import toast from "react-hot-toast";
 import "./style.scss";
+import { useAuth } from "../../context/authContext";
 
 export default function SignIn(props) {
+  const { refreshnavbar, hideClose, switchSignUp, ...rest } = props;
   const [passwordShown, setPasswordShown] = useState(false);
   const [user, setUser] = useState({
     email: "",
     password: "",
   });
+  const auth = useAuth();
+
   const handleChange = (e) => {
     const { value, name } = e.target;
     setUser((prev) => ({ ...prev, [name]: value }));
@@ -23,34 +29,47 @@ export default function SignIn(props) {
     console.log(user);
     if (user.email && user.password) {
       user.usernameOrEmail = user.email;
-      let resp = await axios.post(`/api/auth/signin`, user, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
-      });
-      console.log(resp);
-      if (resp.status === 200) {
-        setUser({
-          email: "",
-          password: "",
+      try {
+        let resp = await axios.post(`/api/auth/signin`, user, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
         });
-        props.onHide();
-        props.refreshnavbar();
-      } else {
-        alert(resp.statusText);
+        if (resp.status === 200) {
+          toast.success("sign in success");
+          setUser({
+            email: "",
+            password: "",
+          });
+          props.onHide();
+          props.refreshnavbar();
+          auth.signin(resp.data, () => {
+            console.log("signin done");
+          });
+        } else {
+          console.log(resp);
+          toast.success("Something wrong with signing in");
+        }
+      } catch (errResp) {
+        console.log(errResp);
+        if (_.get(errResp, "response.status") === 422 && _.get(errResp, "response.data.message")) {
+          toast.error(_.get(errResp, "response.data.message"));
+        } else {
+          toast.error(_.get(errResp, "response.statusText") || "Failed to sign in");
+        }
       }
     }
   };
   return (
-    <Modal {...props} size="lg" aria-labelledby="signin-modal" centered>
-      <Modal.Header closeButton>
+    <Modal {...rest} size="md" aria-labelledby="signin-modal" centered>
+      <Modal.Header closeButton={!props.hideClose}>
         <Modal.Title id="contained-modal-title-vcenter">Sign In</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Container>
           <Row className="mb-3">
-            <Col md={4}>Email / Username:</Col>
+            <Col md={4}>Email:</Col>
             <Col md={8}>
               <InputGroup hasValidation>
                 <Form.Control type="text" required value={user.email} name="email" onChange={handleChange} />
@@ -79,11 +98,39 @@ export default function SignIn(props) {
             </Col>
           </Row>
         </Container>
+        {switchSignUp && (
+          <div className="text-center mt-3 fw-light fs-small">
+            Create a new account
+            <span
+              className="text-primary"
+              onClick={() => {
+                switchSignUp(true);
+              }}
+            >
+              {" "}
+              Sign Up
+            </span>
+          </div>
+        )}
+        <div className="text-center fw-light fs-small">
+          <span className="text-primary">Forget password</span>
+        </div>
       </Modal.Body>
       <Modal.Footer>
-        <Button onClick={props.onHide} variant="danger">
-          Close
-        </Button>
+        {!props.hideClose ? (
+          <Button onClick={props.onHide} variant="danger">
+            Close
+          </Button>
+        ) : (
+          <Button
+            onClick={() => {
+              window.location.replace("/");
+            }}
+            variant="light"
+          >
+            Homepage
+          </Button>
+        )}
         <Button onClick={signInUser} variant="success">
           Login
         </Button>

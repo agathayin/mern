@@ -1,30 +1,65 @@
 import React from "react";
-import { Route, Routes, BrowserRouter } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 // Components
 import Homepage from "./components/homepage/homepage";
-import Navbar from "./components/navbar/navbar";
+import ErrorPage from "./components/homepage/errorpage";
+import MainNavbar from "./components/navbar/navbar";
 import Users from "./components/users/list";
 import Edit from "./components/users/edit";
 import Create from "./components/users/create";
-// import css
-import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
-import "../node_modules/bootstrap-icons/font/bootstrap-icons.css";
+import Login from "./components/homepage/login";
+import EditProfile from "./components/profile/editProfile";
 
-const App = () => {
-  return (
-    <div>
-      <Navbar />
-      <BrowserRouter>
-        <Routes>
-          <Route exact path="/" element={<Homepage />} />
-          <Route exact path="/users" element={<Users />} />
-          <Route path="/users/edit/:id" element={<Edit />} />
-          <Route path="/users/create" element={<Create />} />
-        </Routes>
-      </BrowserRouter>
-    </div>
-  );
-};
+// import context
+import { AuthProvider } from "./context/authContext";
+
+// routes
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Homepage />,
+    errorElement: <ErrorPage />,
+  },
+  { path: "/login", element: <Login /> },
+  {
+    path: "/users",
+    element: <Users />,
+  },
+  {
+    path: "/users/edit/:id",
+    element: <Edit />,
+  },
+  {
+    path: "/users/create",
+    element: <Create />,
+  },
+  {
+    path: "/editProfile",
+    element: <EditProfile />,
+    loader: async () => {
+      return await fetch("/api/auth/me").then((resp) => resp.json());
+    },
+  },
+]);
+
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      user: null,
+    };
+  }
+  componentDidMount() {}
+  render() {
+    return (
+      <AuthProvider>
+        <MainNavbar />
+        <div className="page-header"></div>
+        <RouterProvider router={router} />
+      </AuthProvider>
+    );
+  }
+}
 
 export default App;

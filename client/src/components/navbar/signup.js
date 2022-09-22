@@ -7,6 +7,7 @@ import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
 import "./style.scss";
+import toast from "react-hot-toast";
 
 export default function SignUp(props) {
   const [passwordShown, setPasswordShown] = useState(false);
@@ -18,6 +19,7 @@ export default function SignUp(props) {
     password: "",
     confirmPassword: "",
   });
+  const { switchSignUp, refreshnavbar, ...rest } = props;
 
   const signUpUser = async (user) => {
     user.provider = "local";
@@ -44,7 +46,16 @@ export default function SignUp(props) {
     console.log(form);
     console.log(user);
     if (user.email && user.password && user.password === user.confirmPassword) {
-      signUpUser(user);
+      user.email = user.email.toLowerCase();
+      const emailRE =
+        /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i; // eslint-disable-line
+      if (user.email.match(emailRE)) {
+        signUpUser(user);
+      } else {
+        return toast.error("Incorrect email format");
+      }
+    } else {
+      return toast.error("Please fill in all fields");
     }
   };
 
@@ -53,8 +64,8 @@ export default function SignUp(props) {
     setUser((prev) => ({ ...prev, [name]: value }));
   };
   return (
-    <Modal {...props} size="lg" aria-labelledby="signin-modal" centered>
-      <Modal.Header closeButton>
+    <Modal {...rest} size="lg" aria-labelledby="signin-modal" centered>
+      <Modal.Header closeButton={!props.hideClose}>
         <Modal.Title id="contained-modal-title-vcenter">Sign Up</Modal.Title>
       </Modal.Header>
       <Modal.Body>
@@ -68,7 +79,7 @@ export default function SignUp(props) {
                     type="text"
                     required
                     id="SignUpEmail"
-                    value={user.email}
+                    value={user.email || ""}
                     name="email"
                     onChange={handleChange}
                   />
@@ -79,11 +90,11 @@ export default function SignUp(props) {
             <Row className="mb-3">
               <Col md={4}>First Name</Col>
               <Col md={8}>
-                <InputGroup>
+                <InputGroup noValidate>
                   <Form.Control
                     type="text"
                     id="SignUpFirstName"
-                    value={user.firstName}
+                    value={user.firstName || ""}
                     name="firstName"
                     onChange={handleChange}
                   />
@@ -93,11 +104,11 @@ export default function SignUp(props) {
             <Row className="mb-3">
               <Col md={4}>Last Name</Col>
               <Col md={8}>
-                <InputGroup>
+                <InputGroup noValidate>
                   <Form.Control
                     type="text"
                     id="SignUpLastName"
-                    value={user.lastName}
+                    value={user.lastName || ""}
                     name="lastName"
                     onChange={handleChange}
                   />
@@ -114,7 +125,7 @@ export default function SignUp(props) {
                     aria-describedby="signin-password"
                     as="input"
                     type={passwordShown ? "text" : "password"}
-                    value={user.password}
+                    value={user.password || ""}
                     name="password"
                     onChange={handleChange}
                   />
@@ -135,7 +146,7 @@ export default function SignUp(props) {
                     aria-describedby="signin-password"
                     as="input"
                     type="password"
-                    value={user.confirmPassword}
+                    value={user.confirmPassword || ""}
                     name="confirmPassword"
                     onChange={handleChange}
                     isInvalid={user.confirmPassword && user.confirmPassword !== user.password}
@@ -145,12 +156,37 @@ export default function SignUp(props) {
               </Col>
             </Row>
           </Container>
+          {switchSignUp && (
+            <div className="text-center mt-3 fw-light fs-small">
+              Already have an account
+              <span
+                className="text-primary"
+                onClick={() => {
+                  switchSignUp(false);
+                }}
+              >
+                {" "}
+                Sign In
+              </span>
+            </div>
+          )}
         </Form>
       </Modal.Body>
       <Modal.Footer>
-        <Button onClick={props.onHide} variant="danger">
-          Close
-        </Button>
+        {!props.hideClose ? (
+          <Button onClick={props.onHide} variant="danger">
+            Close
+          </Button>
+        ) : (
+          <Button
+            onClick={() => {
+              window.location.replace("/");
+            }}
+            variant="light"
+          >
+            Homepage
+          </Button>
+        )}
         <Button onClick={handleSubmit} variant="success">
           Login
         </Button>

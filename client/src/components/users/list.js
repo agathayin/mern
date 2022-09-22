@@ -3,9 +3,11 @@ import { Link } from "react-router-dom";
 
 const User = (props) => (
   <tr>
-    <td>{props.user.name}</td>
-    <td>{props.user.position}</td>
-    <td>{props.user.level}</td>
+    <td>{props.user._id}</td>
+    <td>
+      {props.user.firstName} {props.user.lastName}
+    </td>
+    <td>{props.user.email}</td>
     <td>
       <Link className="btn btn-link" to={`/users/edit/${props.user._id}`}>
         Edit
@@ -71,9 +73,9 @@ export default function UserList() {
       <table className="table table-striped" style={{ marginTop: 20 }}>
         <thead>
           <tr>
+            <th>Id</th>
             <th>Name</th>
-            <th>Position</th>
-            <th>Level</th>
+            <th>email</th>
             <th>Action</th>
           </tr>
         </thead>
