@@ -24,7 +24,7 @@ export default function MainNavbar(props) {
         setUserLoaded(true);
         window.user = response.data;
         auth.signin(response.data, () => {
-          console.log("signin done");
+          console.log("signin as " + response.data.email);
         });
       } else {
         return { success: false };

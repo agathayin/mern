@@ -18,31 +18,27 @@ exports.read = function (req, res) {
 /**
  * Update a User
  */
-exports.update = function (req, res) {
+exports.update = async function (req, res) {
   var user = req.model;
   // For security purposes only merge these parameters
   user.firstName = req.body.firstName;
   user.lastName = req.body.lastName;
-  user.displayName = user.firstName + " " + user.lastName;
-  user.roles = req.body.roles;
-  user.barcodePrinterID = req.body.barcodePrinterID;
-  user.barcodePrinterID2 = req.body.barcodePrinterID2;
-  user.shipmentPrinterID = req.body.shipmentPrinterID;
-  user.shipmentPrinterID2 = req.body.shipmentPrinterID2;
+  // user.displayName = user.firstName + " " + user.lastName;
+  // user.roles = req.body.roles;
+  // user.barcodePrinterID = req.body.barcodePrinterID;
+  // user.barcodePrinterID2 = req.body.barcodePrinterID2;
+  // user.shipmentPrinterID = req.body.shipmentPrinterID;
+  // user.shipmentPrinterID2 = req.body.shipmentPrinterID2;
 
-  user.printerComm = req.body.printerComm;
-  user.printerType = req.body.printerType;
-  user.gServiceAccount = req.body.gServiceAccount;
-
-  user.save(function (err) {
-    if (err) {
-      return res.status(422).send({
-        message: errorHandler.getErrorMessage(err),
-      });
-    }
-
-    res.json(user);
-  });
+  // user.printerComm = req.body.printerComm;
+  // user.printerType = req.body.printerType;
+  // user.gServiceAccount = req.body.gServiceAccount;
+  try {
+    const resp = await user.save();
+    return res.jsonp(resp);
+  } catch (err) {
+    return res.status(422).send({ message: err.message });
+  }
 };
 
 /**
@@ -109,6 +105,55 @@ exports.me = function (req, res) {
     return res.jsonp(req.user);
   } else {
     return res.jsonp({});
+  }
+};
+exports.forgetPsw = async function (req, res) {
+  if (!req.body.email) {
+    return res.status(400).send({ message: "Email is required" });
+  }
+  let user = await User.findOne({ email: req.body.email });
+  if (!user) {
+    // user does not exist, send fake success response
+    return res.status(204).send();
+  } else {
+    user.resetPasswordToken = Math.floor(1000 + Math.random() * 9000);
+    user.resetPasswordExpires = new Date(new Date().getTime() + 1000 * 60 * 60);
+    console.log(`forgetPsw:  ${user.email} (${user.resetPasswordToken})`);
+    console.log("forgetPsw link: " + encodeURIComponent(user.email));
+    await user.save();
+    return res.status(204).send();
+  }
+};
+exports.resetPsw = async function (req, res) {
+  if (!req.body.email) {
+    return res.status(400).send({ message: "Email is required" });
+  }
+  if (!req.body.resetPasswordToken && !req.body.password) {
+    return res.status(400).send({ message: "Please fill in code or old password" });
+  }
+  let user = await User.findOne({ email: req.body.email });
+  if (!user) {
+    // user does not exist
+    return res.status(400).send({ message: "Password or code does not match. Please check." });
+  }
+  if (req.body.resetPasswordToken) {
+    if (req.body.resetPasswordToken != user.resetPasswordToken) {
+      return res.status(400).send({ message: "Password or code does not match. Please check." });
+    } else if (new Date() > user.resetPasswordExpires) {
+      return res
+        .status(400)
+        .send({ message: "The code is invalid or expired. Please request a new forget password email." });
+    } else {
+      user.password = req.body.newPassword;
+      await user.save();
+      return res.status(200).send({ success: true });
+    }
+  } else if (req.body.password) {
+    if (user.authenticate(req.body.password)) {
+      user.password = req.body.newPassword;
+      await user.save();
+      return res.status(200).send({ success: true });
+    }
   }
 };
 

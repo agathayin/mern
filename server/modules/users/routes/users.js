@@ -17,4 +17,6 @@ module.exports = function (app) {
   app.route("/api/auth/signup").post(users.create);
   app.route("/api/auth/signin").post(users.signIn);
   app.route("/api/auth/logout").post(users.logout);
+  app.route("/api/auth/forgetPsw").post(users.forgetPsw);
+  app.route("/api/auth/resetPsw").post(users.resetPsw);
 };

@@ -37,7 +37,6 @@ export default function SignIn(props) {
           withCredentials: true,
         });
         if (resp.status === 200) {
-          toast.success("sign in success");
           setUser({
             email: "",
             password: "",
@@ -45,7 +44,7 @@ export default function SignIn(props) {
           props.onHide();
           props.refreshnavbar();
           auth.signin(resp.data, () => {
-            console.log("signin done");
+            toast.success("sign in success");
           });
         } else {
           console.log(resp);

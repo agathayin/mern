@@ -10,6 +10,7 @@ import Edit from "./components/users/edit";
 import Create from "./components/users/create";
 import Login from "./components/homepage/login";
 import EditProfile from "./components/profile/editProfile";
+import ResetPsw from "./components/profile/resetPsw";
 
 // import context
 import { AuthProvider } from "./context/authContext";
@@ -37,6 +38,13 @@ const router = createBrowserRouter([
   {
     path: "/editProfile",
     element: <EditProfile />,
+    loader: async () => {
+      return await fetch("/api/auth/me").then((resp) => resp.json());
+    },
+  },
+  {
+    path: "/resetPsw",
+    element: <ResetPsw />,
     loader: async () => {
       return await fetch("/api/auth/me").then((resp) => resp.json());
     },

@@ -28,6 +28,12 @@ var UserSchema = new Schema({
     default: "",
   },
   salt: String,
+  resetPasswordToken: {
+    type: String,
+  },
+  resetPasswordExpires: {
+    type: Date,
+  },
 });
 
 /**
