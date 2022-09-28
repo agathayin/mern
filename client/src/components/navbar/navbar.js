@@ -9,6 +9,7 @@ import SignUp from "./signup";
 import { Toaster } from "react-hot-toast";
 import "./style.scss";
 import { useAuth } from "../../context/authContext";
+import _ from "lodash";
 
 export default function MainNavbar(props) {
   const [user, setUser] = useState([]);
@@ -16,15 +17,17 @@ export default function MainNavbar(props) {
   const [signUpShow, setSignUpShow] = React.useState(false);
   const [signInShow, setSignInShow] = React.useState(false);
   const auth = useAuth();
+
   const fetchData = async () => {
     try {
       let response = await axios.get("/api/auth/me", { withCredentials: true });
       if (response.status === 200 && response.data && response.data._id) {
+        let userInfo = getMenu(response.data);
         setUser(response.data);
         setUserLoaded(true);
-        window.user = response.data;
-        auth.signin(response.data, () => {
-          console.log("signin as " + response.data.email);
+        window.user = userInfo;
+        auth.signin(userInfo, () => {
+          console.log("signin as " + userInfo.email);
         });
       } else {
         return { success: false };
@@ -40,6 +43,20 @@ export default function MainNavbar(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  function getMenu(user) {
+    if (!user) return user;
+    let menu = [];
+    if (user.roles.includes("user")) {
+      menu.push({ title: "Edit Profile", href: "/editProfile" });
+    }
+    if (user.roles.includes("admin")) {
+      menu.push({ title: "Users", href: "/users" });
+    }
+    menu = _.uniqBy(menu, "href");
+    user.menu = menu;
+    return user;
+  }
+
   const signOut = async () => {
     await axios.post("/api/auth/logout", { withCredentials: true });
     window.location.replace("/");
@@ -54,6 +71,7 @@ export default function MainNavbar(props) {
             </Dropdown.Toggle>
             <Dropdown.Menu>
               <Dropdown.Item href="/editProfile">Edit Profile</Dropdown.Item>
+              <Dropdown.Item href="/resetPsw">Reset Password</Dropdown.Item>
               <Dropdown.Item onClick={() => signOut()}>Sign Out</Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
@@ -69,21 +87,24 @@ export default function MainNavbar(props) {
       )}
     </div>
   );
-  const navMenu = userLoaded ? (
-    <Nav className="me-auto">
-      <Nav.Item>
-        <Nav.Link eventKey="2" title="Home" href="/users">
-          User
-        </Nav.Link>
-      </Nav.Item>
-    </Nav>
-  ) : (
-    <Nav className="me-auto">
-      <Nav.Item>
-        <Nav.Link eventKey="2" title="Home" href="/"></Nav.Link>
-      </Nav.Item>
-    </Nav>
-  );
+  const navMenu =
+    userLoaded && user.menu ? (
+      <Nav className="me-auto">
+        {user.menu.map((el, index) => (
+          <Nav.Item>
+            <Nav.Link eventKey={index + 1} title={el.title} href={el.href}>
+              {el.title}
+            </Nav.Link>
+          </Nav.Item>
+        ))}
+      </Nav>
+    ) : (
+      <Nav className="me-auto">
+        <Nav.Item>
+          <Nav.Link eventKey="2" title="Home" href="/"></Nav.Link>
+        </Nav.Item>
+      </Nav>
+    );
   const switchSignUp = (showSignUp) => {
     console.log("switch", showSignUp);
     setSignInShow(!showSignUp);

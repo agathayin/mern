@@ -24,15 +24,7 @@ exports.update = async function (req, res) {
   user.firstName = req.body.firstName;
   user.lastName = req.body.lastName;
   // user.displayName = user.firstName + " " + user.lastName;
-  // user.roles = req.body.roles;
-  // user.barcodePrinterID = req.body.barcodePrinterID;
-  // user.barcodePrinterID2 = req.body.barcodePrinterID2;
-  // user.shipmentPrinterID = req.body.shipmentPrinterID;
-  // user.shipmentPrinterID2 = req.body.shipmentPrinterID2;
-
-  // user.printerComm = req.body.printerComm;
-  // user.printerType = req.body.printerType;
-  // user.gServiceAccount = req.body.gServiceAccount;
+  user.roles = req.body.roles;
   try {
     const resp = await user.save();
     return res.jsonp(resp);
@@ -67,8 +59,17 @@ exports.list = async function (req, res) {
 };
 exports.create = async function (req, res) {
   const user = new User(req.body);
-  let resp = await user.save();
-  return res.jsonp(resp);
+  try {
+    let count = await User.count({ email: req.body.email });
+    if (count) {
+      return res.status(400).send({ message: "Cannot sign up with this email" });
+    }
+    let resp = await user.save();
+    return res.jsonp(resp);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({ message: err.message });
+  }
 };
 
 exports.signIn = function (req, res, next) {

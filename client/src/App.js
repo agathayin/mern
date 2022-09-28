@@ -7,7 +7,6 @@ import ErrorPage from "./components/homepage/errorpage";
 import MainNavbar from "./components/navbar/navbar";
 import Users from "./components/users/list";
 import Edit from "./components/users/edit";
-import Create from "./components/users/create";
 import Login from "./components/homepage/login";
 import EditProfile from "./components/profile/editProfile";
 import ResetPsw from "./components/profile/resetPsw";
@@ -30,10 +29,6 @@ const router = createBrowserRouter([
   {
     path: "/users/edit/:id",
     element: <Edit />,
-  },
-  {
-    path: "/users/create",
-    element: <Create />,
   },
   {
     path: "/editProfile",

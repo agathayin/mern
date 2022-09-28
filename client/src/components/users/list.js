@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import toast from "react-hot-toast";
+import _ from "lodash";
+import axios from "axios";
+import Container from "react-bootstrap/Container";
 
 const User = (props) => (
   <tr>
@@ -31,44 +35,37 @@ export default function UserList() {
   // This method fetches the users from the database.
   useEffect(() => {
     async function getUsers() {
-      // FETCH
-      const response = await fetch(`/api/users/`);
-
-      if (!response.ok) {
-        const message = `An error occurred: ${response.statusText}`;
-        window.alert(message);
-        return;
+      try {
+        const response = await axios.get(`/api/users/`);
+        console.log(response);
+        setUsers(response.data);
+      } catch (err) {
+        console.log(err);
+        toast.error(_.get(err, "response.data.message") || "an error occurred");
       }
-
-      const users = await response.json();
-      setUsers(users);
     }
-
     getUsers();
-
     return;
-  }, [users.length]);
-  // FETCH
-  // This method will delete a user
-  async function deleteUser(id) {
-    await fetch(`/api/users/delete/${id}`, {
-      method: "DELETE",
-    });
+  }, []);
 
-    const newUsers = users.filter((el) => el._id !== id);
-    setUsers(newUsers);
+  async function deleteUser(id) {
+    if (window.confirm("Do you confirm to delete this user?")) {
+      await fetch(`/api/users/${id}`, {
+        method: "DELETE",
+      });
+      const newUsers = users.filter((el) => el._id !== id);
+      setUsers(newUsers);
+    }
   }
 
-  // This method will map out the users on the table
   function userList() {
     return users.map((user) => {
       return <User user={user} deleteUser={() => deleteUser(user._id)} key={user._id} />;
     });
   }
 
-  // This following section will display the table with the users of individuals.
   return (
-    <div>
+    <Container>
       <h3>User List </h3>
       <table className="table table-striped" style={{ marginTop: 20 }}>
         <thead>
@@ -81,6 +78,6 @@ export default function UserList() {
         </thead>
         <tbody>{userList()}</tbody>
       </table>
-    </div>
+    </Container>
   );
 }

@@ -13,6 +13,7 @@ const path = require("path");
 const _ = require("lodash");
 const passport = require("passport");
 const cors = require("cors");
+const MongoStore = require("connect-mongo");
 
 /**
  * Initialize local variables
@@ -69,16 +70,19 @@ module.exports.initSession = function (app, db) {
   // app.set("trust proxy", 1);
   app.use(
     session({
-      // proxy: config.sessionCookie.proxy,
       saveUninitialized: false,
       resave: false,
       secret: config.sessionSecret,
       cookie: {
         maxAge: config.sessionCookie.maxAge,
-        // httpOnly: config.sessionCookie.httpOnly,
-        // secure: config.sessionCookie.secure && config.secure.ssl,
+        httpOnly: config.sessionCookie.httpOnly,
+        secure: config.sessionCookie.secure && config.secure.ssl,
       },
       name: config.sessionKey,
+      store: MongoStore.create({
+        client: db.connection.getClient(),
+        collectionName: config.sessionCollection,
+      }),
     })
   );
 };

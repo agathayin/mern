@@ -8,6 +8,8 @@ import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
 import "./style.scss";
 import toast from "react-hot-toast";
+import axios from "axios";
+import _ from "lodash";
 
 export default function SignUp(props) {
   const [passwordShown, setPasswordShown] = useState(false);
@@ -23,15 +25,15 @@ export default function SignUp(props) {
 
   const signUpUser = async (user) => {
     user.provider = "local";
-    let resp = await fetch(`/api/auth/signup`, {
-      method: "POST",
-      body: JSON.stringify(user),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    resp = await resp.json();
-    console.log(resp);
+    try {
+      let resp = await axios.post("/api/auth/signup", user);
+      console.log(resp);
+      toast.success("New account created. Please sign in.");
+      switchSignUp(false);
+    } catch (err) {
+      console.log(err);
+      toast.error(_.get(err, "response.data.message") || "Failed to sign up");
+    }
     setUser({});
     props.onHide();
   };

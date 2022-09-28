@@ -112,7 +112,9 @@ export default function SignIn(props) {
           </div>
         )}
         <div className="text-center fw-light fs-small">
-          <span className="text-primary">Forget password</span>
+          <a className="text-warning text-decoration-none" href="/resetPsw">
+            Forget password
+          </a>
         </div>
       </Modal.Body>
       <Modal.Footer>
