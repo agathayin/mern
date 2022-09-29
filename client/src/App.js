@@ -10,6 +10,7 @@ import Edit from "./components/users/edit";
 import Login from "./components/homepage/login";
 import EditProfile from "./components/profile/editProfile";
 import ResetPsw from "./components/profile/resetPsw";
+import AmzListing from "./components/amzlisting/amzlisting";
 
 // import context
 import { AuthProvider } from "./context/authContext";
@@ -43,6 +44,10 @@ const router = createBrowserRouter([
     loader: async () => {
       return await fetch("/api/auth/me").then((resp) => resp.json());
     },
+  },
+  {
+    path: "/amzListing",
+    element: <AmzListing />,
   },
 ]);
 
