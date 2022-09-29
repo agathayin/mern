@@ -14,7 +14,7 @@
     "lint": "eslint client/src/*.js client/src/**/*.js --fix",
     "format": "prettier --write .",
     "clean": "rm -rf node_modules/ client/node_modules/",
-    "heroku-postbuild": "npm install && npm run build"
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install && npm run build"
   },
   "keywords": [],
   "author": "",
