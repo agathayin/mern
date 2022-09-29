@@ -59,9 +59,13 @@ export default function UserList() {
   }
 
   function userList() {
-    return users.map((user) => {
-      return <User user={user} deleteUser={() => deleteUser(user._id)} key={user._id} />;
-    });
+    if (users && users.length) {
+      return users.map((user) => {
+        return <User user={user} deleteUser={() => deleteUser(user._id)} key={user._id} />;
+      });
+    } else {
+      return "";
+    }
   }
 
   return (

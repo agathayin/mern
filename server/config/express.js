@@ -116,7 +116,14 @@ module.exports.initModulesClientRoutes = function (app) {
   app.use("/node_modules", express.static(path.resolve("./node_modules")));
 
   // front end
-  app.use(express.static(path.resolve(__dirname, "../client/build")));
+  if (process.env.NODE_ENV === "production") {
+    app.use(express.static(path.resolve(__dirname, "../../client/build")));
+    app.get("*", (req, res) => {
+      res.sendFile(path.resolve(__dirname, "../../client", "build", "index.html"));
+    });
+  } else {
+    app.use(express.static(path.resolve(__dirname, "../../client/build")));
+  }
 };
 
 /**
