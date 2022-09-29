@@ -115,9 +115,9 @@ module.exports.initModulesClientRoutes = function (app) {
   // front end
   if (process.env.NODE_ENV === "production") {
     app.use(express.static(path.resolve(__dirname, "../../client/build")));
-    // app.get("*", (req, res) => {
-    //   res.sendFile(path.resolve(__dirname, "../../client", "build", "index.html"));
-    // });
+    app.get("*", (req, res) => {
+      res.sendFile(path.resolve(__dirname, "../../client", "build", "index.html"));
+    });
   } else {
     app.use(express.static(path.resolve(__dirname, "../../client/build")));
   }
@@ -219,9 +219,6 @@ module.exports.init = function (db) {
   // Initialize Helmet security headers
   this.initHelmetHeaders(app);
 
-  // Initialize modules static client routes, before session!
-  this.initModulesClientRoutes(app);
-
   // Initialize Express session
   this.initSession(app, db);
 
@@ -235,6 +232,8 @@ module.exports.init = function (db) {
 
   // Initialize error routes
   this.initErrorRoutes(app);
+
+  this.initModulesClientRoutes(app);
 
   // Configure Socket.io
   // app = this.configureSocketIO(app, db);
