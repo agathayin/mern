@@ -36,7 +36,7 @@ export default function UserList() {
   useEffect(() => {
     async function getUsers() {
       try {
-        const response = await axios.get(`/api/users/`);
+        const response = await axios.get(`/api/users/`, { withCredentials: true });
         console.log(response);
         setUsers(response.data);
       } catch (err) {

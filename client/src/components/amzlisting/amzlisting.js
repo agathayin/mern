@@ -17,7 +17,7 @@ export default function AmzListing() {
   useEffect(() => {
     async function getUsers() {
       try {
-        const response = await axios.get(`/api/amzListings`);
+        const response = await axios.get(`/api/amzListings`, { withCredentials: true });
         console.log(response);
         setData(response.data);
         setRowData(response.data);

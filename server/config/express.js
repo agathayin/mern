@@ -112,9 +112,6 @@ module.exports.initHelmetHeaders = function (app) {
  * Configure the modules static routes
  */
 module.exports.initModulesClientRoutes = function (app) {
-  // Setting the app router and static folder
-  app.use("/node_modules", express.static(path.resolve("./node_modules")));
-
   // front end
   if (process.env.NODE_ENV === "production") {
     app.use(express.static(path.resolve(__dirname, "../../client/build")));
