@@ -179,3 +179,7 @@ app.use(session({
           store: MongoStore.create({client: db.connection.getClient(),collectionName: config.sessionCollection,}),
       }))
 ```
+## Online setting
+In order to run front end and back end online, please set all important web setting such as mongo uri and api keys. 
+
+Another important script for heroku is `"heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install && cd client && npm install && npm run build"`
