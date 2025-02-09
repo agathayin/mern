@@ -5,6 +5,7 @@ import axios from "axios";
 import Container from "react-bootstrap/Container";
 import Button from "react-bootstrap/esm/Button";
 import { AgGridReact } from "ag-grid-react";
+import Notification from "../notification/notification";
 
 export default function AmzListing() {
   const [data, setData] = useState([]);
@@ -79,7 +80,7 @@ export default function AmzListing() {
       <Button className="float-end" onClick={() => inputFile.current.click()}>
         Generate
       </Button>
-      <h3>Amazon Listing </h3>
+      <h3>Amazon Listing <Notification event="amzItemChange" show={true} /></h3>
       <hr />
       <div className="ag-theme-alpine" style={{ height: 400, width: "100%" }}>
         <AgGridReact
